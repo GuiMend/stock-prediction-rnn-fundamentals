@@ -40,20 +40,21 @@ from keras.layers import Dense
 regressor = Sequential()
 
 # Adding input layer and hidden layer
-regressor.add(Dense(29, kernel_initializer='uniform', activation='sigmoid', input_dim=56))
+regressor.add(Dense(29, kernel_initializer='uniform', activation='relu', input_dim=56))
 
 # Adding second hidden layer
-regressor.add(Dense(29, kernel_initializer='uniform', activation='sigmoid'))
+regressor.add(Dense(29, kernel_initializer='uniform', activation='relu'))
 
 # Adding output layer
-regressor.add(Dense(1, kernel_initializer='uniform', activation='sigmoid'))
+regressor.add(Dense(1, kernel_initializer='uniform'))
 
 # Compiling the ANN
-regressor.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+regressor.compile(optimizer='adam', loss='mean_squared_error')
 
 # Part 3 - Making predictions and evaluating model
 regressor.fit(x=X_train, y=y_train, batch_size=5, epochs=100)
 
+prediction = regressor.predict(X_test)
 
 
 
