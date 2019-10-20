@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def treat_economatica_indicadores_financeiros(csv_file):
     # Read CSV file
     df = pd.read_csv(csv_file).transpose()
@@ -26,6 +27,7 @@ def prepare_data(data):
     df.dropna(inplace=True)
     return df
 
+
 def treat_economatica_stock_with_following_month_opening_price(csv_file):
     # Read csv file containing stock data
     df = pd.read_csv(csv_file)
@@ -34,7 +36,7 @@ def treat_economatica_stock_with_following_month_opening_price(csv_file):
     # Set index as 'Data'
     df = df.set_index('Data')
     # Group data by quarter and get first value of quarter grouping
-    quarter = df.resample('Q').first()
+    quarter = df.resample('Q').last()
     # Create new column with the information of the following month
     quarter['Abertura proximo mes'] = quarter.Abertura.shift(-1)
     return quarter
