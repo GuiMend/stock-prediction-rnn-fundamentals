@@ -4,6 +4,7 @@ import numpy as np
 import tratamento_dados_empresa
 import tcc_utils
 
+import keras
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from keras.models import Sequential
@@ -32,32 +33,26 @@ ss_y = StandardScaler()
 y_train = ss_y.fit_transform(y_train)
 y_test = ss_y.transform(y_test)
 
+# Keras Initializer with seed
+glorot_normal = keras.initializers.glorot_normal(seed=0)
+glorot_uniform = keras.initializers.glorot_uniform(seed=0)
+random_uniform = keras.initializers.RandomUniform(minval=-0.05, maxval=0.05, seed=0)
 
 # First model: Linear Regression
 linr_model = Sequential()
-linr_model.add(Dense(1, input_shape=(X_train.shape[1],)))
+linr_model.add(Dense(1, input_shape=(X_train.shape[1],), kernel_initializer=random_uniform))
 
 linr_model.compile('adam', 'mean_squared_error')
-linr_history = linr_model.fit(X_train, y_train, epochs=30, validation_split=0.2)
+linr_history = linr_model.fit(X_train, y_train, epochs=100, validation_split=0.2, verbose=0)
 tcc_utils.plot_loss(linr_history)
 
-linr_model.evaluate(X_train, y_train, verbose=0)
-linr_model.evaluate(X_test, y_test, verbose=0)
+linr_train_eval = linr_model.evaluate(X_train, y_train, verbose=0)
+print(f'MSE of training set using Linear model: {linr_train_eval}')
+linr_test_eval = linr_model.evaluate(X_test, y_test, verbose=0)
+print(f'MSE of testing set using Linear model: {linr_test_eval}')
 
 # weights data frame
-linr_wdf = pd.DataFrame(linr_model.get_weights()[0].T, columns=X.columns).T.sort_values(0, ascending=False)
-linr_wdf.columns = ['feature_weight']
-linr_wdf.iloc[:,:]
-
-def calc_err(a, b):
-    return ((100*(b-a)/b)**2)**.5
+print(f'Linear model weights: {tcc_utils.linear_model_weighs_table(linr_model, X)}')
 
 
-predictions = linr_model.predict(X_test)
-predictions_real = ss_y.inverse_transform(predictions)
-stock_real = ss_y.inverse_transform(y_test)
-
-for i in range(10):
-	print('Predicted: %.2f vs %.2f (expected) = %.2f%% error' % (predictions_real[i], stock_real[i], calc_err(predictions_real[i], stock_real[i])))
-
-
+prediction_results = tcc_utils.prediction_results_data_frame(X_test, y_test, linr_model, ss_y)
