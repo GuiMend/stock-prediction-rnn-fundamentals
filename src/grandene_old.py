@@ -36,7 +36,7 @@ y_test = ss_y.transform(y_test)
 # Keras Initializer with seed
 glorot_normal = keras.initializers.glorot_normal(seed=0)
 glorot_uniform = keras.initializers.glorot_uniform(seed=0)
-random_uniform = keras.initializers.RandomUniform(minval=-0.05, maxval=0.05, seed=0)
+
 
 # First model: Linear Regression
 linr_model = Sequential()
@@ -46,13 +46,27 @@ linr_model.compile('adam', 'mean_squared_error')
 linr_history = linr_model.fit(X_train, y_train, epochs=100, validation_split=0.2, verbose=0)
 tcc_utils.plot_loss(linr_history)
 
+# Evaluating model against Training and Test set
 linr_train_eval = linr_model.evaluate(X_train, y_train, verbose=0)
-print(f'MSE of training set using Linear model: {linr_train_eval}')
 linr_test_eval = linr_model.evaluate(X_test, y_test, verbose=0)
+print(f'MSE of training set using Linear model: {linr_train_eval}')
 print(f'MSE of testing set using Linear model: {linr_test_eval}')
 
 # weights data frame
+tcc_utils.linear_model_weighs_table(linr_model, X)
 print(f'Linear model weights: {tcc_utils.linear_model_weighs_table(linr_model, X)}')
 
 
 prediction_results = tcc_utils.prediction_results_data_frame(X_test, y_test, linr_model, ss_y)
+
+random_uniform = keras.initializers.RandomUniform(minval=-0.05, maxval=0.05, seed=0)
+glorot_uniform = keras.initializers.glorot_uniform(seed=0)
+deep_model = Sequential()
+deep_model.add(Dense(32, input_shape=(X.shape[1],), activation='relu', kernel_initializer=glorot_uniform))
+deep_model.add(Dense(16, activation='relu', kernel_initializer=glorot_uniform))
+deep_model.add(Dense(8, activation='relu', kernel_initializer=glorot_uniform))
+deep_model.add(Dense(1, kernel_initializer=glorot_uniform))
+
+deep_model.compile('adam', 'mean_squared_error')
+deep_history = deep_model.fit(X_train, y_train, epochs=40, validation_split=0.2, verbose=0)
+tcc_utils.plot_loss(deep_history)
