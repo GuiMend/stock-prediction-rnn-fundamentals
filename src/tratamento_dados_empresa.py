@@ -1,5 +1,6 @@
 import pandas as pd
-
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
 def treat_economatica_indicadores_financeiros(csv_file):
     # Read CSV file
@@ -40,3 +41,32 @@ def treat_economatica_stock_with_following_month_opening_price(csv_file):
     # Create new column with the information of the following month
     quarter['Abertura proximo mes'] = quarter.Abertura.shift(-1)
     return quarter
+
+
+def get_x_y(indicadores_financeiros, cotacao):
+    x = treat_economatica_indicadores_financeiros(indicadores_financeiros)
+    Y = treat_economatica_stock_with_following_month_opening_price(cotacao)
+    Y = Y.iloc[len(Y) - len(x) - 1: len(Y) - 1, :]
+    y = pd.DataFrame(Y['Abertura proximo mes'])
+    return x, y
+
+
+def get_scaled_splits_and_scaler(indicadores_financeiros, cotacao, test_size, seed):
+    """
+    :param indicadores_financeiros: string - path to csv file
+    :param cotacao: string - path to csv file
+    :param test_size: float - percentage of data to be test set
+    :param seed: int
+    :return: x_train, x_test, y_train, y_test, x_scaler, y_scaler
+    """
+    x, y = get_x_y(indicadores_financeiros, cotacao)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test_size, random_state=seed)
+    # Feature Scaling X
+    x_scaler = StandardScaler()
+    x_train = x_scaler.fit_transform(x_train)
+    x_test = x_scaler.transform(x_test)
+    # Feature Scaling y
+    y_scaler = StandardScaler()
+    y_train = y_scaler.fit_transform(y_train)
+    y_test = y_scaler.transform(y_test)
+    return x_train, x_test, y_train, y_test, x_scaler, y_scaler
