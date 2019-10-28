@@ -208,3 +208,10 @@ tcc_utils.evaluate_model(deep_model_with_val, deep_history_with_val, x_train,
 
 
 
+
+
+
+ # Leave one Out => model.train_on_batch
+
+
+

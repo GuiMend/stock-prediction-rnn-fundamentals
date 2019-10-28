@@ -39,7 +39,7 @@ tcc_utils.evaluate_model(deep_model, deep_history, x_train, y_train,
 
 
 ''' 
-  2) Feed Forward NN with validation split
+  2) Deep Feed Forward NN with validation split
 
   72% train / 20% test / 8% validation split
   kernel_initializer: random_uniform
@@ -64,7 +64,7 @@ tcc_utils.evaluate_model(deep_model_with_val, deep_history_with_val, x_train,
 
 
 ''' 
-  3) Feed Forward NN, with glorot normal
+  3) Deep Feed Forward NN, with glorot normal
 
   80% train / 20% test / 0% validation split
   kernel_initializer: glorot_normal
@@ -88,7 +88,7 @@ tcc_utils.evaluate_model(deep_model, deep_history, x_train, y_train,
 
 
 ''' 
-  4) Feed Forward NN, with glorot normal and validation split
+  4) Deep Feed Forward NN, with glorot normal and validation split
 
   72% train / 20% test / 8% validation split
   kernel_initializer: glorot_normal
@@ -113,7 +113,7 @@ tcc_utils.evaluate_model(deep_model_with_val, deep_history_with_val, x_train,
 
 
 ''' 
-  5) Feed Forward NN, with glorot uniform
+  5) Deep Feed Forward NN, with glorot uniform
 
   80% train / 20% test / 0% validation split
   kernel_initializer: glorot_uniform
@@ -136,7 +136,7 @@ tcc_utils.evaluate_model(deep_model, deep_history, x_train, y_train,
                          x_test, y_test, X, y_scaler)
 
 ''' 
-  6) Feed Forward NN, with glorot uniform and validation split
+  6) Deep Feed Forward NN, with glorot uniform and validation split
 
   72% train / 20% test / 8% validation split
   kernel_initializer: glorot_uniform
