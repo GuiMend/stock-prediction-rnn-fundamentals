@@ -99,6 +99,60 @@ def evaluate_model(model, history, x_train, y_train, x_test, y_test, x, y_scaler
     prediction_results = prediction_results_data_frame(x_test, y_test, model, y_scaler)
     prediction_results.sort_values(by='Real', ascending=False, inplace=True)
     # Print and plot results
+    show_results(prediction_results)
+
+
+def loocv(x, y, kfold, kernel_initializer, layers, activations, y_scaler, epochs=10, verbose=0, batch_size=5):
+    i = 1
+    results_loss = np.array([])
+    results_evaluate = np.array([])
+
+    df = {'Prediction': [0], 'Real': [0], '% error': [0]}
+    results_predictions = pd.DataFrame(data=df)
+
+    for train, test in kfold.split(x):
+        print(f'Training K-Fold: {i}/{kfold.get_n_splits()}')
+        i += 1
+
+        # Kernel initialization
+        kernel_init = kernel_initializer(seed=0)
+        # Create model
+        model = deep_model(x, kernel_init, layers, activations)
+        # Train model with current fold
+        deep_history = model.fit(x[train, :], y[train, :], batch_size=batch_size, epochs=epochs, verbose=verbose)
+        # Save minimum loss encountered for the trained model (MSE)
+        results_loss = np.append([results_loss], [[deep_history.history["loss"][-1]]])
+        # Evaluate the model with test
+        evaluate = model.evaluate(x[test, :], y[test, :], verbose=verbose)
+        # Save evaluation loss (MSE)
+        results_evaluate = np.append([results_evaluate], [[evaluate]])
+        # Predict test y with trained model
+        prediction_results = prediction_results_data_frame(x[test, :], y[test, :], model, y_scaler)
+        # Save results in DataFrame
+        results_predictions = results_predictions.append(prediction_results, ignore_index=True)
+
+    return results_loss, results_evaluate, results_predictions.iloc[1:,:]
+
+
+def plot_loss_eval(results_loss, results_evaluate, log=False, font_size=15):
+    plt.figure(figsize=(16, 8))
+    plt.plot(range(len(results_loss)), results_loss, 'k')
+    plt.plot(range(len(results_loss)), results_loss, 'ko')
+    plt.plot(range(len(results_evaluate)), results_evaluate, 'r')
+    plt.plot(range(len(results_evaluate)), results_evaluate, 'ro')
+    plt.legend(['loss', '', 'test_loss', ''], fontsize=font_size)
+    plt.xlabel('Fold #', fontsize=font_size)
+    plt.ylabel('Loss', fontsize=font_size)
+    plt.title(f'loss: {results_loss[-1]} / eval_loss: {results_evaluate[-1]}', fontsize=font_size)
+    if log:
+        plt.yscale('log')
+    plt.grid(True)
+    plt.show()
+
+
+def show_results(prediction_results):
+    prediction_results = prediction_results.sort_values(by='Real', ascending=False)
+    # Print and plot results
     print(prediction_results)
     plt.plot(prediction_results['Real'], prediction_results['% error'], 'k',
              prediction_results['Real'], prediction_results['% error'], 'ro')
